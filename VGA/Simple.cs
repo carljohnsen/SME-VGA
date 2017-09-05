@@ -1,144 +1,98 @@
 ﻿using System;
 using System.Threading.Tasks;
 using SME;
+using System.Windows.Forms;
 
 namespace VGA
 {
     [InitializedBus]
-    public interface CounterX : IBus
+    public interface Address : IBus
     {
-        short val { get; set; }
+        uint addr { get; set; }
     }
 
     [InitializedBus]
-    public interface CounterY : IBus
+    public interface Data : IBus
     {
-        short val { get; set; }
+        uint data { get; set; }
     }
 
-    [InitializedBus, TopLevelOutputBus]
-    public interface SyncBus : IBus
+    [InitializedBus]
+    public interface FrameBuffer : IBus
     {
-        bool HSync { get; set; }
-        bool VSync { get; set; }
+        bool flg { get; set; }
     }
 
-    [InitializedBus, TopLevelOutputBus]
-    public interface RGB : IBus
+    
+    public class VGAComponent : Process
     {
-        bool R { get; set; }
-        bool G { get; set; }
-        bool B { get; set; }
-    }
+        [InputBus] Address address;
+        [InputBus] Data data;
+        [InputBus] FrameBuffer buffer;
 
-    [ClockedProcess]
-    public class CountX : SimpleProcess
-    {
-        [OutputBus]
-        CounterX output;
+        const int width = 640;
+        const int height = 480;
+        const int size = width * height;
 
-        short current = 0;
-        short line = 800; // spec
+        uint[] Buffer1 = new uint[size];
+        uint[] Buffer2 = new uint[size];
+        int countX = 0;
+        int countY = 0;
 
-        protected override void OnTick()
+        const int maxX = 800;
+        const int maxY = 525;
+
+        public async override Task Run()
         {
-            output.val = current;
-            current = (short)((current + 1) % line);
-        }
-    }
+            await ClockAsync();
+            // Open window
+            Console.WriteLine("1");
+            Monitor monitor = new Monitor(width + 40, height + 60);
+            Task.Run(() => Application.Run(monitor));
+            while (!monitor.IsHandleCreated) { }
+            monitor.Invoke(new Action(monitor.aoeu));
 
-    [ClockedProcess]
-    public class CountY : SimpleProcess
-    {
-        [InputBus]
-        CounterX cx;
-
-        [OutputBus]
-        CounterY output;
-
-        short current = 0;
-        short frame = 525; // spec
-
-        protected override void OnTick()
-        {
-            if (cx.val == 0)
-                current = (short)((current + 1) % frame);
-            output.val = current;
-        }
-    }
-
-    public class Sync : SimpleProcess
-    {
-        [InputBus]
-        CounterX cx;
-        [InputBus]
-        CounterY cy;
-
-        [OutputBus]
-        SyncBus output;
-
-        // spec
-        short visH = 640;
-        short frontH = 16;
-        short syncH = 96;
-        short backH = 48;
-
-        short visV = 480;
-        short frontV = 10;
-        short syncV = 2;
-        short backV = 33;
-
-        protected override void OnTick()
-        {
-            /*output.HSync = cx.val < visH + frontH || cx.val > visH + frontH + syncH;
-            output.VSync = cy.val < visV + frontV || cy.val > visV + frontV + syncV;*/
-            output.HSync = cx.val < frontH || cx.val > frontH + syncH;
-            output.VSync = cy.val < frontV || cy.val > frontV + syncV;
-        }
-    }
-
-    public class Color : SimpleProcess
-    {
-        [InputBus]
-        CounterX cx;
-        [InputBus]
-        CounterY cy;
-
-        [OutputBus]
-        RGB output;
-
-        short visH = 640;
-        short frontH = 16;
-        short syncH = 96;
-        short backH = 48;
-
-        short visV = 480;
-        short frontV = 10;
-        short syncV = 2;
-        short backV = 33;
-
-        protected override void OnTick()
-        {
-            if (cx.val > frontH + syncH + backH && cy.val > frontV + syncV + backV)
+            Console.WriteLine("2");
+            while (true)
             {
-                output.R = true;
-                output.G = true;
-                output.B = true;
+                Console.WriteLine("3");
+                await ClockAsync();
+                Console.WriteLine("4");
+                countX = (countX + 1) % maxX;
+                if (countX == 0)
+                    countY = (countY + 1) % maxY;
+
+                if (countX < width && countY < height)
+                {
+                    // Send color
+                }
+                else
+                {
+                    // Send black
+                }
+
+                monitor.Invoke(new Action(monitor.aoeu));
+                Console.WriteLine("a");
             }
-            else
-            {
-                output.R = false;
-                output.G = false;
-                output.B = false;
-            }
+
         }
     }
 
     public class Tester : SimulationProcess
     {
+        [OutputBus] Address addr;
+        [OutputBus] Data data;
+        [OutputBus] FrameBuffer buff;
+
         public override async Task Run()
         {
-            await ClockAsync();
+            while (true)
+            {
+                await ClockAsync();
+                addr.addr = 0;
+                data.data = 0;
+                buff.flg = false;
+            }
             return;
         }
     }
