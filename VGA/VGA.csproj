@@ -32,6 +32,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SME">
+      <HintPath>..\..\sme\src\SME\bin\Debug\SME.exe</HintPath>
+    </Reference>
+    <Reference Include="SME.AST">
+      <HintPath>..\..\sme\src\SME.AST\bin\Debug\SME.AST.dll</HintPath>
+    </Reference>
+    <Reference Include="SME.GraphViz">
+      <HintPath>..\..\sme\src\SME.GraphViz\bin\Debug\SME.GraphViz.dll</HintPath>
+    </Reference>
+    <Reference Include="SME.Tracer">
+      <HintPath>..\..\sme\src\SME.Tracer\bin\Debug\SME.Tracer.dll</HintPath>
+    </Reference>
+    <Reference Include="SME.VHDL">
+      <HintPath>..\..\sme\src\SME.VHDL\bin\Debug\SME.VHDL.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Simple.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

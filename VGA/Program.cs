@@ -7,8 +7,8 @@ namespace VGA
         static void Main(string[] args)
         {
             new Simulation()
-                /*.BuildCSVFile()
-                .BuildVHDL()*/
+                .BuildCSVFile()
+                .BuildVHDL()
                 .Run(typeof(Program).Assembly);
         }
     }
